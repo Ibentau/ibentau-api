@@ -39,7 +39,6 @@ fastify.post("/chat", { schema: { body } }, async (request, reply) => {
   }
   const sources = await queryIndex(text);
   return await getCompletion(sources, text);
-  return { sources };
 });
 
 /**
