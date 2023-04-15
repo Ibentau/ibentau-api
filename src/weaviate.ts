@@ -3,8 +3,8 @@ import { SOURCE_COUNT } from "./constants.js";
 
 // @ts-ignore
 export const client: WeaviateClient = weaviate.client({
-  scheme: "http",
-  host: "192.168.0.30:8080",
+  scheme: process.env.WEAVIATE_SCHEME || "http",
+  host: process.env.WEAVIATE_HOST || "localhost:8080",
 });
 
 /**

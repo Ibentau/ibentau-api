@@ -49,7 +49,7 @@ pnpm install
 1. Set the following environment variables:
     - `OPENAI_API_KEY`: OpenAI API key
     - `WEAVIATE_SCHEME`: either `http` or `https`
-    - `WEAVIATE_HOST`: the host of the Weaviate database
+    - `WEAVIATE_HOST`: the host of the Weaviate database (e.g. `localhost:8080`)
 
 2. Edit the `urls.json` file to include the URLs you want to scrape.
 
