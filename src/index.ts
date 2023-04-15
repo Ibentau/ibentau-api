@@ -1,12 +1,11 @@
 import * as dotenv from "dotenv";
-import Fastify from "fastify";
-import {S} from "fluent-json-schema";
-
-import {queryIndex} from "./pinecone.js";
-import {createEmbedding, getCompletion, moderateMessage} from "./openai.js";
-import {MAX_CHARACTERS} from "./constants.js";
-
 dotenv.config();
+import Fastify from "fastify";
+import { S } from "fluent-json-schema";
+
+import { queryIndex } from "./weaviate.js";
+import { getCompletion, moderateMessage } from "./openai.js";
+import { MAX_CHARACTERS } from "./constants.js";
 
 const fastify = Fastify({
   logger: true,
@@ -21,7 +20,7 @@ await fastify.register(import("@fastify/rate-limit"), {
 
 await fastify.register(import("@fastify/cors"), {
   origin: "*",
-})
+});
 
 const body = S.object().prop("text", S.string().required());
 
@@ -38,9 +37,9 @@ fastify.post("/chat", { schema: { body } }, async (request, reply) => {
     reply.status(400).send({ message: "Text is flagged" });
     return;
   }
-  const embedding = await createEmbedding(text);
-  const sources = await queryIndex(embedding);
+  const sources = await queryIndex(text);
   return await getCompletion(sources, text);
+  return { sources };
 });
 
 /**
