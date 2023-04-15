@@ -4,9 +4,12 @@
     "target": "ES2022",
     "sourceMap": true,
     "strict": true,
-    "rootDir": "src",
-    "moduleResolution": "NodeNext"
+    "moduleResolution": "NodeNext",
+    "outDir": "dist"
   },
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
     "node_modules"
   ]

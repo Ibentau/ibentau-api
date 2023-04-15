@@ -6,7 +6,9 @@
     "dev": "ts-node --esm src/index.ts",
     "scrape": "ts-node --esm scripts/scrape.ts",
     "generate_embeddings": "ts-node --esm scripts/generate-embeddings.ts",
-    "init_weaviate": "ts-node --esm scripts/init_weaviate.ts"
+    "init_weaviate": "ts-node --esm scripts/init_weaviate.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
   },
   "devDependencies": {
     "@types/node": "^18.15.11",
