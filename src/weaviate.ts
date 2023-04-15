@@ -1,10 +1,15 @@
 import weaviate, { WeaviateClient } from "weaviate-ts-client";
 import { SOURCE_COUNT } from "./constants.js";
 
+// if env are not set, throw an error
+if (!process.env.WEAVIATE_SCHEME || !process.env.WEAVIATE_HOST) {
+  throw new Error("Please set the WEAVIATE_SCHEME and WEAVIATE_HOST environment variables.");
+}
+
 // @ts-ignore
 export const client: WeaviateClient = weaviate.client({
-  scheme: process.env.WEAVIATE_SCHEME || "http",
-  host: process.env.WEAVIATE_HOST || "localhost:8080",
+  scheme: process.env.WEAVIATE_SCHEME,
+  host: process.env.WEAVIATE_HOST,
 });
 
 /**

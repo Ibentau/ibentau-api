@@ -2,6 +2,11 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import { Configuration, OpenAIApi } from "openai";
 
+// if the environment variable is not set, throw an error
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error("Please set the OPENAI_API_KEY environment variable.");
+}
+
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
