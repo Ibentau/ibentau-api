@@ -1,3 +1,5 @@
+import * as dotenv from "dotenv";
+dotenv.config();
 import weaviate, { WeaviateClient } from "weaviate-ts-client";
 import { SOURCE_COUNT } from "./constants.js";
 

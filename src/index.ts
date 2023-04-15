@@ -46,11 +46,11 @@ fastify.post("/chat", { schema: { body } }, async (request, reply) => {
  */
 const start = async () => {
   try {
-    await fastify.listen({ port: 3000 });
+    console.log(process.env.NODE_ENV);
+    await fastify.listen({ port: 3000, host: process.env.HOST || "localhost" });
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
   }
 };
 start();
-

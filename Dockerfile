@@ -40,5 +40,7 @@ COPY --from=build /app/dist /app/dist
 # Expose the port the application will run on
 EXPOSE 3000
 
+ENV HOST=0.0.0.0
+
 # Start the application
 CMD ["pnpm", "run", "start"]
