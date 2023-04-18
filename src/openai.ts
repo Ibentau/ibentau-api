@@ -1,6 +1,7 @@
 import * as dotenv from "dotenv";
-dotenv.config();
 import { Configuration, OpenAIApi } from "openai";
+
+dotenv.config();
 
 // if the environment variable is not set, throw an error
 if (!process.env.OPENAI_API_KEY) {
@@ -11,24 +12,6 @@ const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
-
-/**
- * Creates an embedding for the given text using the specified model and returns the generated embedding.
- *
- * @param {string} text - The text for which the embedding should be created.
- * @returns {Promise<number[]>} An array representing the generated embedding.
- * @throws {Error} If no embedding can not be created.
- */
-export async function createEmbedding(text: string) {
-  const { data } = await openai.createEmbedding({
-    input: text,
-    model: "text-embedding-ada-002",
-  });
-  if (data.data.length === 0) {
-    throw new Error("Can not create embedding.");
-  }
-  return data.data[0].embedding;
-}
 
 /**
  * Moderates a given message and returns a boolean indicating whether the message is flagged or not.
@@ -53,16 +36,15 @@ export async function getCompletion(
     messages: [
       {
         role: "system",
-        content: `You are a friendly scientific conference AI assistant. Your job is to answer questions about the conference. You will also have to provide 3 or less sort questions suggestions the user could ask next. Use the format to answer : \`{"text": "response", "suggestions": ["q1", "q2", "q3"]}\` In each of the user input, a context will be added, answer the user question based on the context. Don't try to invent new context. Do not talk about the context in your reply. If you don't know the answer, just say "I don't know". Do not use markdown for the reply.`,
+        content: `You are a friendly scientific conference AI assistant. Your job is to answer questions about the conference. You will also have to provide 3 or less sort questions suggestions the user could ask next. Use the format to answer : \`{"text": "response", "suggestions": ["q1", "q2", "q3"]}\`. Answer the user question based on the context. Don't try to invent new context. If you don't know the answer, just say "I don't know". Do not use markdown for the reply. Answer in the language of the question.
+""" Context:
+The date : ${new Date().toISOString()}
+${sources.map((source) => source.text).join("\n\n")}}`
       },
       {
         role: "user",
-        content: `""" Context:
-The date : ${new Date().toISOString()}
-${sources.map((source) => source.text).join("\n\n")}}
-
-""" Question: ${query}`,
-      },
+        content: query
+      }
     ],
     max_tokens: 400,
   });

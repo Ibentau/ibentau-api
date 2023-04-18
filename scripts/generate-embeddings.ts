@@ -4,7 +4,7 @@ import parseMD from "parse-md";
 import { client } from "../src/weaviate.js";
 import { ObjectsBatcher } from "weaviate-ts-client";
 
-const markdownDir = "generated";
+const markdownDir = "processed";
 
 /**
  * Generates embeddings for the given markdowns and saves them to a pinecone index

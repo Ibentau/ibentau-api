@@ -1,6 +1,7 @@
 import puppeteer, { Browser } from "puppeteer";
 
 import { mkdir, readdir, readFile, writeFile } from "fs/promises";
+// @ts-ignore
 import TurndownService from "turndown";
 
 // @ts-ignore
@@ -35,7 +36,7 @@ async function scrape_researchr_page(
   // keep only content elements (like p, h1, h2, h3, h4, h5, h6, li, blockquote, pre, code, table, dl, div)
   await element.evaluate((element) => {
     const elements = element.querySelectorAll(
-      "*:not(p, h1, h2, h3, h4, h5, h6, li, blockquote, pre, code, table, dl, div, table, tr, th, td, tbody, thead, strong, strike, tfoot, address)"
+      "*:not(p, h1, h2, h3, h4, h5, h6, li, blockquote, pre, code, table, dl, div, table, tr, th, td, tbody, thead, strong, strike, tfoot, address, a, small, span)"
     );
     for (let i = 0; i < elements.length; i++) {
       elements[i].parentNode?.removeChild(elements[i]);
@@ -90,6 +91,7 @@ date: ${new Date().toISOString()}
 
 async function main() {
   await scrape_all_pages();
+  console.log("Done scraping");
 }
 
-await main();
+main();

@@ -2,7 +2,7 @@ import { client } from "../src/weaviate.js";
 
 let classObj = {
   class: "Question",
-  vectorizer: "text2vec-transformers", // text2vec-transformers or text2vec-huggingface
+  vectorizer: "text2vec-openai" // text2vec-transformers or text2vec-huggingface
 };
 
 // add the schema
