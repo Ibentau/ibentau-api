@@ -61,7 +61,11 @@ ${sources.map((source) => source.text).join("\n\n")}}`
     const { text, suggestions } = JSON.parse(textContent);
     return { text, suggestions, sources: uniqueSources };
   } catch (e) {
-    // If the completion is not a valid JSON, we return the completion as text and no suggestions as the OpenAI API may have failed to generate suggestions.
-    return { text: textContent, suggestions: [], sources: uniqueSources };
+    // If the completion is not a valid JSON
+    return {
+      text: "Apologies, but I'm having difficulty understanding your question. Would you mind providing more context or rephrasing it in a different way so that I can better assist you?",
+      suggestions: [],
+      sources: []
+    };
   }
 }
