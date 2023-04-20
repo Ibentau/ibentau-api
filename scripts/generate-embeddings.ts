@@ -1,10 +1,10 @@
-import { MarkdownTextSplitter } from "langchain/text_splitter";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { readdir, readFile } from "fs/promises";
 import parseMD from "parse-md";
-import { client } from "../src/weaviate.js";
 import { ObjectsBatcher } from "weaviate-ts-client";
+import { client } from "../src/weaviate";
 
-const markdownDir = "processed";
+const inputFilesDir = "generated";
 
 /**
  * Generates embeddings for the given markdowns and saves them to a pinecone index
@@ -13,10 +13,10 @@ const markdownDir = "processed";
  */
 async function generate_embeddings() {
   // load markdowns using fs
-  const files = await readdir(markdownDir);
+  const files = await readdir(inputFilesDir);
   const markdowns = await Promise.all(
     files.map((file) => {
-      return readFile(`${markdownDir}/${file}`, "utf8");
+      return readFile(`${inputFilesDir}/${file}`, "utf8");
     })
   );
 
@@ -27,14 +27,25 @@ async function generate_embeddings() {
     contents.push(content);
     metadata.push(mdMetadata);
   }
+
+  // replace 2+ spaces with a single space
+  contents = contents.map((content) => content.replace(/ {2,}/g, " "));
+  // replace 2+ tabs with a single tab
+  contents = contents.map((content) =>
+    content.replace(/(?:\s*\n\s*){2,}/g, "\t")
+  );
+  // replace 2+ newlines with a single newline. Newlines can be \n\n or \n \n. They can contain spaces in between.
+
   // into documents
-  const splitter = new MarkdownTextSplitter({
-    chunkSize: 1000,
-    chunkOverlap: 100,
+  const splitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 4000,
+    chunkOverlap: 200
   });
   const documents = await splitter.createDocuments(contents, metadata);
 
   console.log(`Got ${documents.length} embeddings ready to save`);
+
+  console.log(documents);
 
   // Prepare a batcher
   let batcher: ObjectsBatcher = client.batch.objectsBatcher();
@@ -61,4 +72,4 @@ async function generate_embeddings() {
   await batcher.do();
 }
 
-await generate_embeddings();
+generate_embeddings();

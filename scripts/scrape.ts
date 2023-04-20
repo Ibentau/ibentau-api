@@ -1,32 +1,34 @@
-import puppeteer, { Browser } from "puppeteer";
+import puppeteer, { Page } from "puppeteer";
 
-import { mkdir, readdir, readFile, writeFile } from "fs/promises";
-// @ts-ignore
-import TurndownService from "turndown";
+import { writeFile } from "fs/promises";
 
-// @ts-ignore
-import { gfm } from "joplin-turndown-plugin-gfm";
-
-const turndownService = new TurndownService();
-turndownService.use(gfm);
-
-/**
- * Scrapes the researchr page and returns the markdown
- *
- * @param url the url of the researchr page
- * @param browser the puppeteer browser
- * @returns the markdown of the researchr page
- */
-async function scrape_researchr_page(
-  url: string,
-  browser: Browser
-): Promise<string> {
+async function main() {
+  const url = "https://conf.researchr.org/home/ict4s-2023"; // Replace this with the website you want to scrape
+  const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.setJavaScriptEnabled(false);
-  await page.goto(url);
+
+  const visited = new Set<string>();
+
+  await crawl(url, page, visited);
+
+  await browser.close();
+}
+
+async function crawl(url: string, page: Page, visited: Set<string>) {
+  if (visited.has(url)) {
+    return;
+  }
+
+  visited.add(url);
+  console.log("Crawling:", url);
+
+  await page.goto(url, { waitUntil: "networkidle2" });
+
+  // Select element with id "content" and get its text. Do not get content from style or script tags inside the element.
 
   const element = await page.waitForSelector("#content", {
-    timeout: 100,
+    timeout: 100
   });
 
   if (!element) {
@@ -43,55 +45,35 @@ async function scrape_researchr_page(
     }
   });
 
-  const html_of_element = await element.evaluate(
-    (element) => element.innerHTML
-  );
+  const content = await element.evaluate((element) => {
+    return element.textContent;
+  });
 
-  return turndownService.turndown(html_of_element);
-}
-
-/**
- * Scrapes all researchr pages and saves them to a file
- *
- * @returns the markdowns of all researchr pages
- *
- */
-async function scrape_all_pages() {
-  // get urls from json file
-  const urls = JSON.parse(await readFile("scripts/urls.json", "utf8"));
-  console.log(`Got ${urls.length} urls ready to scrape`);
-
-  const browser = await puppeteer.launch();
-
-  try {
-    await readdir("./generated");
-  } catch (e) {
-    await mkdir("./generated");
-  }
-
-  for (const url of urls) {
-    try {
-      let markdown = await scrape_researchr_page(url, browser);
-      // add metadata
-      const metadata = `---
+  // Save the content in a .md file
+  const date = new Date().toISOString();
+  const header = `---
 url: ${url}
-date: ${new Date().toISOString()}
----
-`;
-      markdown = metadata + markdown;
+date: ${date}
+---`;
 
-      // save markdown to file
-      await writeFile(`./generated/${url.split("/").pop()}.md`, markdown);
-    } catch (e) {
-      console.log(`Error scraping ${url}`);
-    }
+  const fileName = `generated/${url.replace(/[:\/]/g, "_")}.md`;
+  await writeFile(fileName, `${header}\n\n${content}`);
+
+  // Get all internal links on the current page
+  const links: string[] = await page.evaluate(() => {
+    return Array.from(document.querySelectorAll("a"))
+      .map((a) => a.href)
+      .filter((href) => href.startsWith("https://conf.researchr.org"))
+      .filter((href) => href.includes("ict4s-2023"))
+      .filter((href) => !href.includes("#"))
+      .filter((href) => !href.includes("profile"))
+      .filter((href) => !href.includes("signin"));
+  });
+
+  // Crawl each link
+  for (const link of links) {
+    await crawl(link, page, visited);
   }
-  await browser.close();
 }
 
-async function main() {
-  await scrape_all_pages();
-  console.log("Done scraping");
-}
-
-main();
+main().catch((error) => console.error(error));
