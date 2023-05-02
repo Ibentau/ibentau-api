@@ -31,7 +31,8 @@
     "joplin-turndown-plugin-gfm": "^1.0.12",
     "langchain": "^0.0.56",
     "parse-md": "^3.0.3",
-    "weaviate-ts-client": "^1.0.0"
+    "weaviate-ts-client": "^1.0.0",
+    "gpt-3-encoder": "^1.1.4"
   },
   "keywords": [],
   "author": "Mael Kerichard",
