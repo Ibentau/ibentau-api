@@ -62,6 +62,16 @@ ${sources.map((source) => source.text).join("\n\n")}}`
     return { text, suggestions, sources: uniqueSources };
   } catch (e) {
     // If the completion is not a valid JSON
+
+    // check if the completion do not contains "{" or "}" and if so, return the completion as is
+    if (!textContent.includes("{") && !textContent.includes("}")) {
+        return {
+            text: textContent,
+            suggestions: [],
+            sources: uniqueSources
+        };
+    }
+
     return {
       text: "Apologies, but I'm having difficulty understanding your question. Would you mind providing more context or rephrasing it in a different way so that I can better assist you?",
       suggestions: [],
